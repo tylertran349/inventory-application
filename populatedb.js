@@ -87,10 +87,10 @@ function createItems(cb) {
 function createCategories(cb) {
     async.parallel([
         function(callback) {
-            categoryCreate('Processors', 'Processors/CPUs for your computer');
+            categoryCreate('Processors', 'Processors/CPUs for your computer', callback);
         },
         function(callback) {
-            categoryCreate('VIdeo cards', 'Devices to output video to a monitor/screen');
+            categoryCreate('Video cards', 'Devices to output video to a monitor/screen', callback);
         }
     ],
     cb);
