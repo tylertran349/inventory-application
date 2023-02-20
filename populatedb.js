@@ -21,13 +21,13 @@ async function main() {
   await mongoose.connect(mongoDB);
 }
 
-var items = []
-var categories = []
-var iteminstances = []
+const items = [];
+const categories = [];
+const iteminstances = [];
 
-function itemCreate(name, description, category, number_in_stock, launch_date) {
-    itemdetail = { name: name, description: description, category: category, number_in_stock: number_in_stock, launch_date: launch_date };
-    var item = new Item(itemdetail);
+function itemCreate(name, description, category, launch_date, cb) {
+    let itemdetail = { name: name, description: description, category: category, launch_date: launch_date };
+    const item = new Item(itemdetail);
     
     item.save(function(err) {
         if(err) {
@@ -41,7 +41,7 @@ function itemCreate(name, description, category, number_in_stock, launch_date) {
 }
 
 function categoryCreate(name, description, cb) {
-    categorydetail = { name: name, description: description }
+    let categorydetail = { name: name, description: description }
     var category = new Category(categorydetail);
 
     category.save(function(err) {
@@ -55,8 +55,8 @@ function categoryCreate(name, description, cb) {
     })
 }
 
-function itemInstanceCreate(item, condition, price) {
-    iteminstancedetail = { item: item, price: price };
+function itemInstanceCreate(item, condition, price, cb) {
+    let iteminstancedetail = { item: item, price: price };
     if(condition != false) iteminstancedetail.condition = condition;
     
     var iteminstance = new ItemInstance(iteminstancedetail);
@@ -75,10 +75,16 @@ function itemInstanceCreate(item, condition, price) {
 function createItems(cb) {
     async.parallel([
         function(callback) {
-            itemCreate('Ryzen 5800X3D', 'An 8-core Zen 3 processor.', 'Processors', 8, '2022-04-20', callback);
+            itemCreate('Ryzen 5800X3D', 'An 8-core Zen 3 processor from AMD', categories[0], '2022-04-20', callback);
         },
         function(callback) {
-            itemCreate('RTX 3080', 'A powerful 4K GPU', 'Video cards', 10, '2020-09-17', callback);
+            itemCreate('RTX 3080', 'A powerful 4K GPU from NVIDIA', categories[1], '2020-09-17', callback);
+        },
+        function(callback) {
+            itemCreate('RX 6800XT', 'A powerful 4K GPU from AMD', categories[1], '2020-11-18', callback);
+        },
+        function(callback) {
+            itemCreate('NZXT H510', 'A great value computer case from NZXT', categories[2], '2019-07-18', callback);
         }
     ], 
     cb);
@@ -91,6 +97,9 @@ function createCategories(cb) {
         },
         function(callback) {
             categoryCreate('Video cards', 'Devices to output video to a monitor/screen', callback);
+        },
+        function(callback) {
+            categoryCreate('Cases', 'Housing for all the components in a computer', callback)
         }
     ],
     cb);
@@ -103,19 +112,40 @@ function createItemInstances(cb) {
         },
         function(callback) {
             itemInstanceCreate(items[1], 'New', 699.99, callback);
-        }
+        },
+        function(callback) {
+            itemInstanceCreate(items[1], 'New', 699.99, callback);
+        },
+        function(callback) {
+            itemInstanceCreate(items[1], 'Used', 499.99, callback);
+        },
+        function(callback) {
+            itemInstanceCreate(items[2], 'New', 699.99, callback);
+        },
+        function(callback) {
+            itemInstanceCreate(items[3], 'New', 99.99, callback);
+        },
+        function(callback) {
+            itemInstanceCreate(items[3], 'Refurbished', 69.99, callback);
+        },
+
     ],
     cb);
 }
 
 async.series([
-    createItems, createCategories, createItemInstances
+    createCategories,
+    createItems,
+    createItemInstances
 ],
+// Optional callback
 function(err, results) {
-    if(err) {
-        console.log("Final error: " + err);
-    } else {
-        console.log("ItemInstances: " + iteminstances);
+    if (err) {
+        console.log('FINAL ERR: ' + err);
+    }
+    else {
+        console.log('BOOKInstances: ' + iteminstances);
+        
     }
     // All done, disconnect from database
     mongoose.connection.close();

@@ -1,5 +1,13 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  p(id="title")= title
+  
+  if error
+    p Error getting dynamic content.
+  else 
+    p We current have the following record counts: 
+    ul 
+      li #[strong Items:] !{data.item_count}
+      li #[strong Total items in stock:] !{data.item_instance_available_count}
+      li #[strong Categories:] !{data.category_count}

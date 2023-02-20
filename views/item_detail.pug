@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  h1 Item: #{item.name}
+
+  p #[strong Category:]
+    each val, index in item.category
+      a(href=val.url) #{val.name}
+      if index < item.category.length - 1
+        |,
+  p #[strong Description:] #{item.description}
+
+  div(style='margin-left:20px;margin-top:20px')
+    h4 Available SKUs
+
+    each val in item_instances
+      hr
+      p #{val.condition}
+      p #[strong Id:]
+        a(href=val.url) #{val._id}
+
+    else
+      p There are no available SKUs.
