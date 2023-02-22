@@ -1,6 +1,7 @@
 const Category = require("../models/category");
 const Item = require("../models/item");
 const async = require("async");
+const {body, validationResult} = require("express-validator");
 
 // Display list of all Categories.
 exports.category_list = function(req, res, next) {
@@ -49,14 +50,55 @@ exports.category_detail = (req, res, next) => {
 };
 
 // Display Category create form on GET.
-exports.category_create_get = (req, res) => {
-  res.send("NOT IMPLEMENTED: Category create GET");
+exports.category_create_get = (req, res, next) => {
+  res.render("category_form", {title: "Create Category"});
 };
 
 // Handle Category create on POST.
-exports.category_create_post = (req, res) => {
-  res.send("NOT IMPLEMENTED: Category create POST");
-};
+exports.category_create_post = [
+  body("name", "Category name required").trim().isLength({min: 1}).escape(), // Check if input has at least 1 character, remove starting/ending whitespace, and remove HTML characters
+  
+  // Process request after validation adn sanitization of input
+  (req, res, next) => {
+    // Extract the validation errors from a request
+    const errors = validationResult(req);
+
+    // Create a category object with escaped and trimmed data
+    const category = new Category({ name: req.body.name });
+
+    if(!errors.isEmpty()) {
+      // If this if loop runs, that means there are errors so render the form again with sanitized values/error messages
+      res.render("category_form", {
+        title: "Create Category",
+        category,
+        errors: errors.array(),
+      });
+    } else {
+      // If this else loop runs, that means the form data is valid
+
+      // Check if a Category with the same name already exists
+      Category.findOne({ name: req.body.category }).exec((err, found_category) => {
+        if(err) {
+          return next(err);
+        }
+
+        if(found_category) {
+          // Category exists so redirect to its detail page
+          res.redirect(found_category.url);
+        } else {
+          // Category does not exist so save the new Category
+          category.save((err) => {
+            if(err) {
+              return next(err);
+            }
+            // Category saved, redirect to detail page of new category we just created
+            res.redirect(category.url);
+          })
+        }
+      });
+    }
+  },
+];
 
 // Display Category delete form on GET.
 exports.category_delete_get = (req, res) => {

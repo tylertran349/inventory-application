@@ -1,0 +1,12 @@
+extends layout
+
+block content
+
+  h1 ID: #{iteminstance._id}
+
+  p #[strong Name: ]
+    a(href=iteminstance.item.url) #{iteminstance.item.name} 
+    | - #{iteminstance.price}
+
+  p #[strong Condition:]
+    |  #{iteminstance.condition}

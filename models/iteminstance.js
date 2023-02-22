@@ -10,7 +10,7 @@ const ItemInstanceSchema = new Schema({
 // Virtual for ItemInstance's URL
 ItemInstanceSchema.virtual("url").get(function() {
     return `/catalog/iteminstance/${this._id}`
-})
+});
 
 // Export model
 module.exports = mongoose.model("ItemInstance", ItemInstanceSchema);

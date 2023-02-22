@@ -84,7 +84,7 @@ router.get("/iteminstance/:id/update", iteminstance_controller.iteminstance_upda
 // GET request for one ItemInstance.
 router.get("/iteminstance/:id", iteminstance_controller.iteminstance_detail);
 
-// GET request for list of all ItemInstasnces.
+// GET request for list of all ItemInstances.
 router.get("/iteminstances", iteminstance_controller.iteminstance_list);
 
 module.exports = router;
