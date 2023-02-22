@@ -5,11 +5,14 @@ block content
 
   form(method='POST' action='')
     div.form-group
-      label(for='name') Name:
+      label(for='name') Item name:
       input#name.form-control(type='text', placeholder='Name of item' name='name' required='true' value=(undefined===item ? '' : item.name) )
     div.form-group
-      label(for='description') Description:
+      label(for='summary') Description:
       textarea#description.form-control(type='textarea', placeholder='Description' name='description' required='true') #{undefined===item ? '' : item.description}
+    div.form-group
+      label(for='launch_date') Launch date:
+      input#launch_date.form-control(type='date' name='launch_date' value=(undefined===item ? '' : item.launch_date) )
     div.form-group
       label Category:
       div

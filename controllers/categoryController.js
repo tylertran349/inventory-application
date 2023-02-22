@@ -93,7 +93,7 @@ exports.category_create_post = [
             }
             // Category saved, redirect to detail page of new category we just created
             res.redirect(category.url);
-          })
+          });
         }
       });
     }

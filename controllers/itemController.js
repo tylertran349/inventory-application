@@ -75,93 +75,109 @@ exports.item_detail = (req, res, next) => {
 
 // Display Item create form on GET.
 exports.item_create_get = (req, res, next) => {
-  // Get all categories
-  async.parallel({
-    categories(callback) {
-      Category.find(callback);
+  // Get all authors and genres, which we can use for adding to our book.
+  async.parallel(
+    {
+      categories(callback) {
+        Category.find(callback);
+      },
     },
-  },
-  (err, results) => {
-    if(err) {
-      return next(err);
+    (err, results) => {
+      if (err) {
+        return next(err);
+      }
+      res.render("item_form", {
+        title: "Create Item",
+        authors: results.categories,
+      });
     }
-    res.render("item_form", {
-      title: "Create Item",
-      categories: results.categories,
-    });
-  }
   );
 };
 
+
 // Handle Item create on POST.
+// Handle book create on POST.
 exports.item_create_post = [
-  // Convert the category to an array
+  // Convert the genre to an array.
   (req, res, next) => {
-    if(!Array.isArray(req.body.category)) {
-      req.body.category = typeof req.body.category === "undefined" ? [] : [req.body.category];
+    if (!Array.isArray(req.body.category)) {
+      req.body.category =
+        typeof req.body.category === "undefined" ? [] : [req.body.category];
     }
     next();
   },
 
-  // Validate and sanitize form fields
-  body("name", "Name must not be empty").trim().isLength({min: 1}).escape(),
-  body("description", "Description must not be empty").trim().isLength({min: 1}).escape(),
+  // Validate and sanitize fields.
+  body("name", "Name must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("description", "Description must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("launch_date", "Invalid launch date")
+    .optional({checkFalsy: true})
+    .isISO8601()
+    .toDate(),
   body("category.*").escape(),
-  body("launch_date", "Invalid launch date").isLength({min: 1}).isISO8601().toDate(),
 
-  // Process request after validation and sanitization
+  // Process request after validation and sanitization.
   (req, res, next) => {
-    // Extract the validation errors from a request
+    // Extract the validation errors from a request.
     const errors = validationResult(req);
 
-    // Create an Item object with escaped and trimmed data
+    // Create a Book object with escaped and trimmed data.
     const item = new Item({
       name: req.body.name,
       description: req.body.description,
+      launch_date: req.body.launch_date, 
       category: req.body.category,
-      launch_date: req.body.launch_date,
     });
 
-    if(!errors.isEmpty()) {
-      // If the if statement runs, that means there are errors so render the form again with sanitized values/error messages
+    if (!errors.isEmpty()) {
+      // There are errors. Render form again with sanitized values/error messages.
 
-      // Get all categories for form
-      async.parallel({
-        categories(callback) {
-          Category.find(callback);
+      // Get all authors and genres for form.
+      async.parallel(
+        {
+          categories(callback) {
+            Category.find(callback);
+          },
         },
-      },
-      (err, results) => {
-        if(err) {
-          return next(err);
-        }
-
-        // Mark our selected categories as checked
-        for(const category of results.categories) {
-          if(item.category.includes(category._id)) {
-            category.checked = "true";
+        (err, results) => {
+          if (err) {
+            return next(err);
           }
+
+          // Mark our selected genres as checked.
+          for (const category of results.categories) {
+            if (item.category.includes(category._id)) {
+              category.checked = "true";
+            }
+          }
+          res.render("item_form", {
+            title: "Create Item",
+            categories: results.categories,
+            item,
+            errors: errors.array(),
+          });
         }
-        res.render("item_form", {
-          title: "Create Category",
-          categories: results.categories,
-          errors: errors.array(),
-        });
-      }
       );
       return;
     }
 
-    // Data from form is valid so save the item
+    // Data from form is valid. Save book.
     item.save((err) => {
-      if(err) {
+      if (err) {
         return next(err);
       }
-      // Successful so redirect to webpage of new item that was just created
+      // Successful: redirect to new book record.
       res.redirect(item.url);
     });
   },
 ];
+
 
 // Display Item delete form on GET.
 exports.item_delete_get = (req, res) => {
