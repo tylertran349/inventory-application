@@ -27,7 +27,7 @@ const iteminstances = [];
 
 function itemCreate(name, description, category, launch_date, cb) {
     let itemdetail = { name: name, description: description, category: category, launch_date: launch_date };
-    const item = new Item(itemdetail);
+    let item = new Item(itemdetail);
     
     item.save(function(err) {
         if(err) {
@@ -41,8 +41,7 @@ function itemCreate(name, description, category, launch_date, cb) {
 }
 
 function categoryCreate(name, description, cb) {
-    let categorydetail = { name: name, description: description }
-    var category = new Category(categorydetail);
+    let category = new Category({ name: name, description: description});
 
     category.save(function(err) {
         if(err) {
@@ -52,7 +51,7 @@ function categoryCreate(name, description, cb) {
         console.log("New category: " + category);
         categories.push(category);
         cb(null, category);
-    })
+    });
 }
 
 function itemInstanceCreate(item, condition, price, cb) {
@@ -72,26 +71,8 @@ function itemInstanceCreate(item, condition, price, cb) {
     })
 }
 
-function createItems(cb) {
-    async.parallel([
-        function(callback) {
-            itemCreate('Ryzen 5800X3D', 'An 8-core Zen 3 processor from AMD', categories[0], '2022-04-20', callback);
-        },
-        function(callback) {
-            itemCreate('RTX 3080', 'A powerful 4K GPU from NVIDIA', categories[1], '2020-09-17', callback);
-        },
-        function(callback) {
-            itemCreate('RX 6800XT', 'A powerful 4K GPU from AMD', categories[1], '2020-11-18', callback);
-        },
-        function(callback) {
-            itemCreate('NZXT H510', 'A great value computer case from NZXT', categories[2], '2019-07-18', callback);
-        }
-    ], 
-    cb);
-}
-
 function createCategories(cb) {
-    async.parallel([
+    async.series([
         function(callback) {
             categoryCreate('Processors', 'Processors/CPUs for your computer', callback);
         },
@@ -102,6 +83,25 @@ function createCategories(cb) {
             categoryCreate('Cases', 'Housing for all the components in a computer', callback)
         }
     ],
+    // optional callback
+    cb);
+}
+
+function createItems(cb) {
+    async.parallel([
+        function(callback) {
+            itemCreate('Ryzen 5800X3D', 'An 8-core Zen 3 processor from AMD', [categories[0]], '2022-04-20', callback);
+        },
+        function(callback) {
+            itemCreate('RTX 3080', 'A powerful 4K GPU from NVIDIA', [categories[1],], '2020-09-17', callback);
+        },
+        function(callback) {
+            itemCreate('RX 6800XT', 'A powerful 4K GPU from AMD', [categories[1],], '2020-11-18', callback);
+        },
+        function(callback) {
+            itemCreate('NZXT H510', 'A great value computer case from NZXT', [categories[2],], '2019-07-18', callback);
+        }
+    ], 
     cb);
 }
 
@@ -144,7 +144,7 @@ function(err, results) {
         console.log('FINAL ERR: ' + err);
     }
     else {
-        console.log('BOOKInstances: ' + iteminstances);
+        console.log('ItemInstances: ' + iteminstances);
         
     }
     // All done, disconnect from database

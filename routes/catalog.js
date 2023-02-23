@@ -67,19 +67,19 @@ router.get("/categories", category_controller.category_list);
 router.get("/iteminstance/create", iteminstance_controller.iteminstance_create_get);
 
 // POST request for creating an ItemInstance
-router.get("/iteminstance/create", iteminstance_controller.iteminstance_create_post);
+router.post("/iteminstance/create", iteminstance_controller.iteminstance_create_post);
 
 // GET request to delete an ItemInstance
 router.get("/iteminstance/:id/delete", iteminstance_controller.iteminstance_delete_get);
 
 // POST request to delete an ItemInstance
-router.get("/iteminstance/:id/delete", iteminstance_controller.iteminstance_delete_post);
+router.post("/iteminstance/:id/delete", iteminstance_controller.iteminstance_delete_post);
 
 // GET request to update an ItemInstance
 router.get("/iteminstance/:id/update", iteminstance_controller.iteminstance_update_get);
 
 // POST request to update an ItemInstance
-router.get("/iteminstance/:id/update", iteminstance_controller.iteminstance_update_post);
+router.post("/iteminstance/:id/update", iteminstance_controller.iteminstance_update_post);
 
 // GET request for one ItemInstance.
 router.get("/iteminstance/:id", iteminstance_controller.iteminstance_detail);

@@ -1,4 +1,6 @@
 const ItemInstance = require("../models/iteminstance");
+const {body, validationResult} = require("express-validator");
+const Item = require("../models/item");
 
 // Display list of all ItemInstances.
 exports.iteminstance_list = function(req, res, next) {
@@ -39,14 +41,68 @@ exports.iteminstance_detail = (req, res, next) => {
 };
 
 // Display ItemInstance create form on GET.
-exports.iteminstance_create_get = (req, res) => {
-  res.send("NOT IMPLEMENTED: ItemInstance create GET");
+exports.iteminstance_create_get = (req, res, next) => {
+  Item.find({}, "name").exec((err, items) => {
+    if (err) {
+      return next(err);
+    }
+    // Successful, so render.
+    res.render("iteminstance_form", {
+      title: "Create ItemInstance",
+      item_list: items,
+    });
+  });
 };
 
+
 // Handle ItemInstance create on POST.
-exports.iteminstance_create_post = (req, res) => {
-  res.send("NOT IMPLEMENTED: ItemInstance create POST");
-};
+exports.iteminstance_create_post = [
+  // Validate and sanitize fields.
+  body("item", "Item must be specified").trim().isLength({ min: 1 }).escape(),
+  body("condition").escape(),
+  body("price"),
+
+  // Process request after validation and sanitization.
+  (req, res, next) => {
+    // Extract the validation errors from a request.
+    const errors = validationResult(req);
+
+    // Create a BookInstance object with escaped and trimmed data.
+    const iteminstance = new ItemInstance({
+      item: req.body.item,
+      condition: req.body.condition,
+      price: parseFloat(req.body.price),
+    });
+
+    if (!errors.isEmpty()) {
+      // There are errors. Render form again with sanitized values and error messages.
+      Item.find({}, "name").exec(function (err, items) {
+        if (err) {
+          return next(err);
+        }
+        // Successful, so render.
+        res.render("iteminstance_form", {
+          title: "Create ItemInstance",
+          item_list: items,
+          selected_item: iteminstance.item._id,
+          errors: errors.array(),
+          iteminstance,
+        });
+      });
+      return;
+    }
+
+    // Data from form is valid.
+    iteminstance.save((err) => {
+      if (err) {
+        return next(err);
+      }
+      // Successful: redirect to new record.
+      res.redirect(iteminstance.url);
+    });
+  },
+];
+
 
 // Display ItemInstance delete form on GET.
 exports.iteminstance_delete_get = (req, res) => {

@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  h1=title
+
+  form(method='POST' action='')
+    div.form-group
+      label(for='item') Item:
+      select#item.form-control(type='select' placeholder='Select item' name='item' required='true')
+        - item_list.sort(function(a, b) {let textA = a.name.toUpperCase(); let textB = b.name.toUpperCase(); return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;});
+        for item in item_list
+          option(value=item._id, selected=(selected_item==item._id.toString() ? 'selected' : false) ) #{item.name}
+
+    div.form-group
+      label(for='condition') Condition:
+      select#status.form-control(type='select' placeholder='Select condition' name='condition' required='true')
+        option(value='New') New
+        option(value='Open-box') Open-box
+        option(value='Refurbished') Refurbished
+        option(value='Used') Used
+
+    label(for='price') Price:
+      input#price.form-control(type='text', placeholder='Price of item' name='price' required='true' value=(undefined===iteminstance ? '' : iteminstance.price) )
+
+    button.btn.btn-primary(type='submit') Submit
+
+  if errors
+    ul
+      for error in errors
+        li!= error.msg
