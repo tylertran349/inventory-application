@@ -1,0 +1,36 @@
+extends layout
+
+block content
+
+  h1 #{title}: #{item.name}
+  p #[strong Description:] #{item.description}
+  p #[strong Category:] 
+    each val, index in item.category
+      a(href=val.url) #{val.name}
+      if index < item.category.length - 1
+        |, 
+
+  hr
+  
+  if item_instances.length
+  
+    p #[strong Delete the following copies before attempting to delete this item.]
+  
+    div(style='margin-left:20px;margin-top:20px')
+
+      h4 Copies
+    
+      each item_instance in item_instances
+        hr
+        p #[strong Id:] 
+          a(href=item_instance.url) #{item_instance._id} 
+          | - #{item_instance.condition} $#{item_instance.price}
+
+  else
+    p Do you really want to delete this item?
+    
+    form(method='POST' action='')
+      div.form-group
+        input#id.form-control(type='hidden',name='id', required='true', value=item._id )
+
+      button.btn.btn-primary(type='submit') Delete

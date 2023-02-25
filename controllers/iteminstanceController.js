@@ -21,7 +21,7 @@ exports.iteminstance_list = function(req, res, next) {
 // Display detail page for a specific ItemInstance.
 exports.iteminstance_detail = (req, res, next) => {
   ItemInstance.findById(req.params.id) // Find a item instance with the ID of a specific Item instance extracted from the URL
-    .populate("item") // Get the details of the associated item
+    .populate("item") // Get the details of the item associated with the ItemInstance
     .exec((err, iteminstance) => {
       if(err) {
         return next(err);
@@ -104,14 +104,36 @@ exports.iteminstance_create_post = [
 ];
 
 
-// Display ItemInstance delete form on GET.
-exports.iteminstance_delete_get = (req, res) => {
-  res.send("NOT IMPLEMENTED: ItemInstance delete GET");
+// Display ItemInstance delete form on GET
+exports.iteminstance_delete_get = function (req, res, next) {
+  ItemInstance.findById(req.params.id) // Find a item instance with the ID of a specific Item instance extracted from the URL
+    .populate("item") // Get the item associated with the ItemInstance
+    .exec(function (err, iteminstance) {
+      if (err) {
+        return next(err);
+      }
+      if (iteminstance == null) {
+        // No results.
+        res.redirect("/catalog/iteminstances");
+      }
+      // Successful, so render.
+      res.render("iteminstance_delete", {
+        title: "Delete ItemInstance",
+        iteminstance: iteminstance,
+      });
+    });
 };
 
 // Handle ItemInstance delete on POST.
-exports.iteminstance_delete_post = (req, res) => {
-  res.send("NOT IMPLEMENTED: ItemInstance delete POST");
+exports.iteminstance_delete_post = (req, res, next) => {
+  // Assume that req.body.id is a valid ItemInstance id
+  ItemInstance.findByIdAndRemove(req.body.id, function deleteItemInstance(err) {
+    if(err) {
+      return next(err);
+    }
+    // ItemInstance was successfully deleted so redirect to the page showing the list of ItemInstances
+    res.redirect("/catalog/iteminstances");
+  });
 };
 
 // Display ItemInstance update form on GET.

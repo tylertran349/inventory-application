@@ -10,6 +10,8 @@ block content
         |,
   p #[strong Description:] #{item.description}
 
+  p #[strong Launch date:] #{item.launch_date_formatted}
+
   div(style='margin-left:20px;margin-top:20px')
     h4 Available SKUs
 
@@ -21,4 +23,10 @@ block content
 
     else
       p There are no available SKUs.
+  
+  hr
+  p 
+    a(href=item.url+'/update') Update item
+  p
+    a(href=item.url+'/delete') Delete item
 

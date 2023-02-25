@@ -1,0 +1,26 @@
+extends layout
+
+block content
+
+  h1= title
+  
+  p #[strong Do you really want to delete this ItemInstance?]
+  
+  div(style="margin-left:20px")
+
+    p #[strong ID]: #{iteminstance._id}
+  
+    p #[strong Name:] 
+      a(href=iteminstance.item.url) #{iteminstance.item.title}
+
+    p #[strong Status:] 
+      span #{iteminstance.condition}
+      
+    p #[strong Price:] 
+      span #{iteminstance.price}
+
+  form(method='POST' action='')
+    div.form-group
+      input#id.form-control(type='hidden',name='id', required='true', value=iteminstance._id )
+
+    button.btn.btn-primary(type='submit') Delete
