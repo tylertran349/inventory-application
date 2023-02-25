@@ -108,18 +108,9 @@ exports.item_create_post = [
   },
 
   // Validate and sanitize fields.
-  body("name", "Name must not be empty.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
-  body("description", "Description must not be empty.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
-  body("launch_date", "Invalid launch date")
-    .optional({checkFalsy: true})
-    .isISO8601()
-    .toDate(),
+  body("name", "Name must not be empty.").trim().isLength({ min: 1 }).escape(),
+  body("description", "Description must not be empty.").trim().isLength({ min: 1 }).escape(),
+  body("launch_date", "Invalid launch date").optional({checkFalsy: true}).isISO8601().toDate(),
   body("category.*").escape(),
 
   // Process request after validation and sanitization.
