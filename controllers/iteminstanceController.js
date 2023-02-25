@@ -1,6 +1,7 @@
 const ItemInstance = require("../models/iteminstance");
 const {body, validationResult} = require("express-validator");
 const Item = require("../models/item");
+let async = require('async');
 
 // Display list of all ItemInstances.
 exports.iteminstance_list = function(req, res, next) {
@@ -67,7 +68,7 @@ exports.iteminstance_create_post = [
     // Extract the validation errors from a request.
     const errors = validationResult(req);
 
-    // Create a BookInstance object with escaped and trimmed data.
+    // Create a ItemInstance object with escaped and trimmed data.
     const iteminstance = new ItemInstance({
       item: req.body.item,
       condition: req.body.condition,
@@ -136,12 +137,84 @@ exports.iteminstance_delete_post = (req, res, next) => {
   });
 };
 
-// Display ItemInstance update form on GET.
-exports.iteminstance_update_get = (req, res) => {
-  res.send("NOT IMPLEMENTED: ItemInstance update GET");
-};
+// Display ItemInstance update form on GET
+exports.iteminstance_update_get = function(req, res, next) {
+  // Get items and categories for form
+  async.parallel(
+    {
+      iteminstance: function(callback) {
+        ItemInstance.findById(req.params.id).populate("item").exec(callback);
+      },
+      items: function(callback) {
+        Item.find(callback);
+      },
+    },
+    function(err, results) {
+      if(err) {
+        return next(err);
+      }
+      if(results.iteminstance == null) {
+        // No matching ItemInstance was found
+        let err = new Error("ItemInstance not found");
+        err.status = 404;
+        return next(err);
+      }
+      // The ItemInstance was found so render the form to update the ItemInstance
+      res.render("iteminstance_form", {
+        title: "Update ItemInstance",
+        item_list: results.items,
+        selected_item: results.iteminstance.item._id,
+        iteminstance: results.iteminstance,
+      });
+    }
+  )
+}
 
-// Handle ItemInstance update on POST.
-exports.iteminstance_update_post = (req, res) => {
-  res.send("NOT IMPLEMENTED: ItemInstance update POST");
-};
+// Handle ItemInstance update on POST
+exports.iteminstance_update_post = [
+  // Validate and sanitize fields.
+  body("item", "Item must be specified").trim().isLength({ min: 1 }).escape(),
+  body("condition").escape(),
+  body("price"),
+
+  // Process request after validation and sanitization.
+  (req, res, next) => {
+    // Extract the validation errors from a request.
+    const errors = validationResult(req);
+
+    // Create a ItemInstance object with escaped and trimmed data.
+    const iteminstance = new ItemInstance({
+      item: req.body.item,
+      condition: req.body.condition,
+      price: parseFloat(req.body.price),
+      _id: req.params.id, // Re-use the previous id
+    });
+
+    if (!errors.isEmpty()) {
+      // There are errors. Render form again with sanitized values and error messages.
+      Item.find({}, "name").exec(function (err, items) {
+        if (err) {
+          return next(err);
+        }
+        // Successful, so render.
+        res.render("iteminstance_form", {
+          title: "Update ItemInstance",
+          item_list: items,
+          selected_item: iteminstance.item._id,
+          errors: errors.array(),
+          iteminstance,
+        });
+      });
+      return;
+    }
+
+    // Data from form is valid so update the ItemInstance with the updated values
+    ItemInstance.findByIdAndUpdate(req.params.id, iteminstance, {}, function(err, itemInstance) {
+      if(err) {
+        return next(err);
+      }
+      // The ItemInstance was successfully updated so redirect the user to the detail page of the updated ItemInstance
+      res.redirect(itemInstance.url);
+    })
+  },
+];

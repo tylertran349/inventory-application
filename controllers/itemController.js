@@ -309,7 +309,7 @@ exports.item_update_post = [
     const item = new Item({
       name: req.body.name,
       description: req.body.description,
-      category: typeof req.body.category === "undefined" ? [] : req.body.genre,
+      category: typeof req.body.category === "undefined" ? [] : req.body.category,
       launch_date: req.body.launch_date,
       _id: req.params.id, // Must include this or else a new ID will be assigned to this Item
     });

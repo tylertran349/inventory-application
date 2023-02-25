@@ -6,7 +6,9 @@ block content
 
   div(style='margin-left:20px;margin-top:20px')
 
-    h4 Items
+    p #[strong Description: ] #{category.description}
+
+    h4 Associated Items
 
     dl
       each item in category_items
@@ -15,8 +17,10 @@ block content
         dd #{item.description}
 
       else
-        p This category has no items.
+        p This category has no items associated with it.
   
   hr
+  p 
+    a(href=category.url+'/update') Update category
   p 
     a(href=category.url+'/delete') Delete category
