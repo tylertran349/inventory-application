@@ -203,10 +203,10 @@ exports.item_delete_post = (req, res, next) => {
   async.parallel(
     {
       item(callback) {
-        Item.findById(req.body.itemid).populate("category").exec(callback);
+        Item.findById(req.body.id).populate("category").exec(callback);
       },
       item_iteminstances(callback) {
-        ItemInstance.find({ item: req.body.itemid }).exec(callback);
+        ItemInstance.find({ item: req.body.id }).exec(callback);
       },
     },
     (err, results) => {
@@ -224,7 +224,7 @@ exports.item_delete_post = (req, res, next) => {
         return;
       }
       // Item has no ItemInstance objects. Delete object and redirect to the list of items.
-      Item.findByIdAndRemove(req.body.itemid, (err) => {
+      Item.findByIdAndRemove(req.body.id, (err) => {
         if (err) {
           return next(err);
         }
